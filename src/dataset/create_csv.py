@@ -2,7 +2,7 @@ import csv
 import random
 import time
 
-from src.scrappers.scrape import get_word_data
+from src.scrappers.meanings import get_word_meanings
 from src.scrappers.collocations import get_collocations
 from src.html.html_generator import generate_html_from_json
 from src.scrappers.synonyms import get_synonyms
@@ -25,7 +25,7 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
             word = row[0]  # The word is in the first column
             if word == 'word':
                 continue
-            word_data = get_word_data(word)  # Get the meaning using your function
+            word_data = get_word_meanings(word)  # Get the meaning using your function
             try:
                 collocations = get_collocations(word)
             except Exception:
@@ -36,15 +36,17 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
                 synonyms = None
             html_meaning = generate_html_from_json(word_data, collocations, synonyms)
             tags = []
-            try:
-                if 'adjective' in word_data['part_of_speech']:
-                    tags.append('adjective')
-                if 'adverb' in word_data['part_of_speech']:
-                    tags.append('adverb')
-                if 'verb' in word_data['part_of_speech']:
-                    tags.append('verb')
-            except:
-                pass
+            for dict_title, dict_body in word_data.items():
+                for entry in dict_body:
+                    try:
+                        if 'adjective' in entry['part_of_speech']:
+                            tags.append('adjective')
+                        if 'adverb' in entry['part_of_speech']:
+                            tags.append('adverb')
+                        if 'verb' in entry['part_of_speech']:
+                            tags.append('verb')
+                    except Exception:
+                        continue
             writer.writerow([word, html_meaning, ','.join(tags)])  # Write the updated row to the output CSV
             # Random Interval
             sleep_time = random.uniform(3, 7)  # random sleep time between 3 and 7 seconds
@@ -53,6 +55,6 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
 
 
 if __name__ == "__main__":
-    input_csv_path = '../../sample.csv'
-    output_csv_path = '../../output.csv'
+    input_csv_path = 'sample.csv'
+    output_csv_path = 'output.csv'
     create_csv_file(input_csv_path, output_csv_path)
