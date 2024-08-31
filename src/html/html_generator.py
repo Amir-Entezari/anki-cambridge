@@ -80,7 +80,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
         html_content += "</ul>"
 
     html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">You Notes:</div>"""
-
+    html_content += "<div>Write here...</div>"
     return html_content
 
 
