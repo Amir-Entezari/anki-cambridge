@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import quote
 
 
-def get_word_data(word):
+def get_word_meanings(word):
     # Base URL and headers
     base_url = "https://dictionary.cambridge.org/dictionary/english/"
     url = base_url + quote(word)
@@ -127,5 +127,5 @@ def get_word_data(word):
 
 # Usage example:
 if __name__ == "__main__":
-    word_info = get_word_data("rubbish")
+    word_info = get_word_meanings("rubbish")
     print(word_info)
