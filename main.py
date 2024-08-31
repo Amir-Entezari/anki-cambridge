@@ -1,9 +1,11 @@
 import csv
 from src.anki.ankideck_generator import create_anki_deck
 from src.dataset.create_csv import create_csv_file
+
 # Path to the CSV file
-input_csv_path = 'Unit 20.csv'
+input_csv_path = input('Enter the csv file address:')
 csv_file_path = 'output.csv'
+deck_name = input('Enter the name for you deck:')
 
 create_csv_file(input_csv_path, csv_file_path, has_collocations=True, has_synonyms=True)
 
@@ -23,4 +25,4 @@ with open(csv_file_path, mode='r', newline='', encoding='utf-8') as file:
         }
         word_list.append(record)
 
-create_anki_deck("Unit 20", word_list, "vocabulary_deck.apkg")
+create_anki_deck(deck_name, word_list, "vocabulary_deck.apkg")
