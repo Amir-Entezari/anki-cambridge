@@ -1,2 +1,4 @@
 *.csv
 playground.py
+*.apkg
+*.html
