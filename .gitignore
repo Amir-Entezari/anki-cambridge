@@ -1,5 +1,8 @@
 # Editor's files
 /.idea/
+/__pycache__
+/__pycache__/
+__pycache__
 
 # Dataset files
 *.csv
