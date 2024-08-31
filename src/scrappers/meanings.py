@@ -7,6 +7,7 @@ from urllib.parse import quote
 
 
 def get_word_data(word):
+    # Base URL and headers
     base_url = "https://dictionary.cambridge.org/dictionary/english/"
     url = base_url + quote(word)
 
@@ -25,66 +26,103 @@ def get_word_data(word):
     http.mount("https://", adapter)
     http.mount("http://", adapter)
 
-    try:
-        response = http.get(url, headers=headers)
-        response.raise_for_status()  # Will raise HTTPError for bad responses
+    # Send a GET request to the URL
+    response = http.get(url, headers=headers)
+    response.raise_for_status()
 
-        soup = BeautifulSoup(response.content, 'html.parser')
+    # Parse the HTML content using BeautifulSoup
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-        word_data = {
-            'word': word,
-            'phonetic': None,
-            'audio_url': None,
-            'meanings': [],  # List to hold meanings and examples
-            'origin': None,
-            'part_of_speech': None,
-            'extra_info': None,
-        }
+    # Dictionary to store all word data
+    word_data = {}
 
-        # Scrape phonetic transcription
-        phonetic_tag = soup.find('span', class_='ipa')
-        if phonetic_tag:
-            word_data['phonetic'] = phonetic_tag.text.strip()
+    # Extract dictionary sections (e.g., Cambridge, Business, etc.)
+    dictionary_sections = soup.find_all('div', class_='pr dictionary')
+    for section in dictionary_sections:
+        # Determine the name of the dictionary
+        # dict_name_tag = section.find('div', class_='dict-title')
+        title_element = section.find('h2', class_='c_hh')
+        # Extract the text and split to get the dictionary title
+        if title_element:
+            title_text = title_element.get_text()
+            # Split the text by the pipe symbol and strip whitespace
+            dictionary_title = title_text.split('|')[-1].strip()
+            # print(dictionary_title)  # Output: American Dictionary
+        else:
+            dictionary_title = "Cambridge"  # Default to "Cambridge" if no specific name
 
-        # Scrape audio URL
-        audio_tag = soup.find('amp-audio')
-        if audio_tag and 'src' in audio_tag.attrs:
-            word_data['audio_url'] = audio_tag['src']
+        # Excluding American Dictionary
+        if "american" in dictionary_title.lower():
+            continue
 
-        # Scrape part of speech
-        pos_block = soup.find('div', class_='posgram')
-        if pos_block:
-            word_data['part_of_speech'] = pos_block.text.strip()
+        entry_bodies = section.find_all('div', class_='pr entry-body__el')
+        for entry_body in entry_bodies:
+            header = entry_body.find('div', class_='pos-header')
+            word = header.find('span', class_='hw').text
 
-        # Scrape meanings and example sentences
-        meaning_blocks = soup.find_all('div', class_='def-block ddef_block')
-        for block in meaning_blocks:
-            meaning = block.find('div', class_='def ddef_d db').text.strip()
+            posgram = header.find('div', class_='posgram')
+            part_of_speech = posgram.get_text(separator=' ', strip=True)
+            phonetic = entry_body.find('span', class_='ipa').text.strip() if entry_body.find('span',
+                                                                                             class_='ipa') else None
+            audio_element = entry_body.find('span', class_='audio_play_button')
+            audio_url = audio_element.get('data-src-mp3') if audio_element else None
 
-            # Scrape the English proficiency level if present
-            level_tag = block.find('span', class_='epp-xref')
-            level = level_tag.text.strip() if level_tag else None
+            # Find all senses (meanings) in this section
+            senses = entry_body.find_all('div', class_='pr dsense')
 
-            examples = [
-                ex.text.strip()
-                for ex in block.find_all('div', class_='examp dexamp')
-            ]
+            word_entry = {
+                "word": word,
+                "phonetic": phonetic,
+                "audio_url": audio_url,
+                "part_of_speech": part_of_speech,
+                "meanings": []
+            }
+            for sense in senses:
+                # Extract the title
+                title_element = sense.find('h3', class_='dsense_h')
+                meaning_title = title_element.get_text(separator=' ', strip=True)
 
-            # Append the meaning with level and examples
-            word_data['meanings'].append({
-                'meaning': meaning,
-                'level': level,
-                'examples': examples
-            })
+                # Extract level tag
+                level_tag = sense.find('span', class_='epp-xref')
+                level = level_tag.text.strip() if level_tag else None
+                level_tag.decompose() if level_tag else None
+                # Extract extra info like part of speech or countablity
+                extra_element = sense.find('span', class_='def-info ddef-info')
+                extra_info = extra_element.get_text(separator=' ', strip=True)
 
-        return word_data
+                # Extract guideword
+                guideword_element = sense.find('span', class_='guideword dsense_gw')
+                guideword = guideword_element.text.strip("()").strip() if guideword_element else None
 
-    except ConnectionError:
-        raise Exception("Failed to connect to Cambridge Dictionary. Please check your connection or try again later.")
-    except HTTPError as http_err:
-        raise Exception(f"HTTP error occurred: {http_err}")
-    except Exception as err:
-        raise Exception(f"An error occurred: {err}")
+                # Extract meaning
+                meaning_element = sense.find('div', class_='def ddef_d db')
+                meaning = meaning_element.text.strip() if meaning_element else None
+
+                # Extract examples
+                examples = []
+                example_elements = sense.find_all('div', class_='examp dexamp')
+                for example_element in example_elements:
+                    example_text = example_element.text.strip()
+                    examples.append(example_text)
+
+                # Initialize the dictionary entry if not already present
+
+                word_entry['meanings'].append({
+                    'title': meaning_title,
+                    'level': level,
+                    "extra_info": extra_info,
+                    "guideword": guideword,
+                    "meaning": meaning,
+                    "examples": examples
+                }
+                )
+
+            if dictionary_title not in word_data:
+                word_data[dictionary_title] = []
+            # Add the entry to the corresponding dictionary
+            word_data[dictionary_title].append(word_entry)
+
+    return word_data
 
 
 # Usage example:
