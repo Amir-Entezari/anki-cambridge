@@ -34,9 +34,9 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
                 title = context['title']
                 title_tag = f'<span style="font-weight: bold; color: #5d2fc1;">{title}</span>'
 
-
-                html_content += "<hr style='border: 2px solid #5d2fc1;' />"  # Add the Purple line
-                html_content += title_tag
+                if title is not None:
+                    html_content += "<hr style='border: 2px solid #5d2fc1;' />"  # Add the Purple line
+                    html_content += title_tag
                 html_content += f"<div style='margin-bottom: 20px;'>"
                 for meaning in context["meanings"]:
                     level = meaning['level']
