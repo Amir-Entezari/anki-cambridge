@@ -67,7 +67,7 @@ def get_word_meanings(word):
             audio_element = entry_body.find('span', class_='audio_play_button')
             audio_url = audio_element.get('data-src-mp3') if audio_element else None
 
-            # Find all senses (meanings) in this section
+            # Find all senses (contexts) in this section
             senses = entry_body.find_all('div', class_='pr dsense')
 
             word_entry = {
@@ -75,48 +75,51 @@ def get_word_meanings(word):
                 "phonetic": phonetic,
                 "audio_url": audio_url,
                 "part_of_speech": part_of_speech,
-                "meanings": []
+                "contexts": []
             }
             for sense in senses:
                 # Extract the title
                 title_element = sense.find('h3', class_='dsense_h')
-                meaning_title = title_element.get_text(separator=' ', strip=True)
+                context_title = title_element.get_text(separator=' ', strip=True)
 
-                # Extract level tag
-                level_tag = sense.find('span', class_='epp-xref')
-                level = level_tag.text.strip() if level_tag else None
-                level_tag.decompose() if level_tag else None
-                # Extract extra info like part of speech or countablity
-                extra_element = sense.find('span', class_='def-info ddef-info')
-                extra_info = extra_element.get_text(separator=' ', strip=True)
-
-                # Extract guideword
-                guideword_element = sense.find('span', class_='guideword dsense_gw')
-                guideword = guideword_element.text.strip("()").strip() if guideword_element else None
-
-                # Extract meaning
-                meaning_element = sense.find('div', class_='def ddef_d db')
-                meaning = meaning_element.text.strip() if meaning_element else None
-
-                # Extract examples
-                examples = []
-                example_elements = sense.find_all('div', class_='examp dexamp')
-                for example_element in example_elements:
-                    example_text = example_element.text.strip()
-                    examples.append(example_text)
-
-                # Initialize the dictionary entry if not already present
-
-                word_entry['meanings'].append({
-                    'title': meaning_title,
-                    'level': level,
-                    "extra_info": extra_info,
-                    "guideword": guideword,
-                    "meaning": meaning,
-                    "examples": examples
+                context = {
+                    'title': context_title,
+                    "meanings": []
                 }
-                )
+                # Extract meaning
+                meanings_elms = sense.find_all('div', class_='def-block ddef_block')
+                for meaning_elm in meanings_elms:
+                    # Extract level tag
+                    level_tag = meaning_elm.find('span', class_='epp-xref')
+                    level = level_tag.text.strip() if level_tag else None
+                    level_tag.decompose() if level_tag else None
 
+                    # Extract extra info like part of speech or countablity
+                    extra_element = meaning_elm.find('span', class_='def-info ddef-info')
+                    extra_info = extra_element.get_text(separator=' ', strip=True)
+
+                    meaning_element = meaning_elm.find('div', class_='def ddef_d db')
+                    meaning = meaning_element.text.strip() if meaning_element else None
+
+                    # Extract examples
+                    examples = []
+                    example_elements = meaning_elm.find_all('div', class_='examp dexamp')
+                    for example_element in example_elements:
+                        example_text = example_element.text.strip()
+                        examples.append(example_text)
+
+                    context['meanings'].append(
+                        {
+                            "extra_info": extra_info,
+                            "level": level,
+                            "meaning": meaning,
+                            "examples": examples
+                        }
+                    )
+
+                word_entry['contexts'].append(context)
+
+            # Initialize the dictionary entry if not already present
             if dictionary_title not in word_data:
                 word_data[dictionary_title] = []
             # Add the entry to the corresponding dictionary
@@ -127,5 +130,5 @@ def get_word_meanings(word):
 
 # Usage example:
 if __name__ == "__main__":
-    word_info = get_word_meanings("rubbish")
+    word_info = get_word_meanings("bear")
     print(word_info)
