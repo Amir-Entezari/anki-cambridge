@@ -57,78 +57,81 @@ def get_word_meanings(word):
 
         entry_bodies = section.find_all('div', class_='pr entry-body__el')
         for entry_body in entry_bodies:
-            header = entry_body.find('div', class_='pos-header')
-            word = header.find('span', class_='hw').text
+            try:
+                header = entry_body.find('div', class_='pos-header')
+                word = header.find('span', class_='hw').text
 
-            posgram = header.find('div', class_='posgram')
-            part_of_speech = posgram.get_text(separator=' ', strip=True)
-            phonetic = entry_body.find('span', class_='ipa').text.strip() if entry_body.find('span',
-                                                                                             class_='ipa') else None
-            audio_element = entry_body.find('span', class_='audio_play_button')
-            audio_url = audio_element.get('data-src-mp3') if audio_element else None
+                posgram = header.find('div', class_='posgram')
+                part_of_speech = posgram.get_text(separator=' ', strip=True)
+                phonetic = entry_body.find('span', class_='ipa').text.strip() if entry_body.find('span',
+                                                                                                 class_='ipa') else None
+                audio_element = entry_body.find('span', class_='audio_play_button')
+                audio_url = audio_element.get('data-src-mp3') if audio_element else None
 
-            # Find all senses (contexts) in this section
-            senses = entry_body.find_all('div', class_='pr dsense dsense-noh')
+                # Find all senses (contexts) in this section
+                senses = entry_body.find_all('div', class_=['pr', 'dsense', 'dsense-noh'])
 
-            word_entry = {
-                "word": word,
-                "phonetic": phonetic,
-                "audio_url": audio_url,
-                "part_of_speech": part_of_speech,
-                "contexts": []
-            }
-            for sense in senses:
-                # Extract the title
-                title_element = sense.find('h3', class_='dsense_h')
-                context_title = title_element.get_text(separator=' ', strip=True) if title_element else None
-
-                context = {
-                    'title': context_title,
-                    "meanings": []
+                word_entry = {
+                    "word": word,
+                    "phonetic": phonetic,
+                    "audio_url": audio_url,
+                    "part_of_speech": part_of_speech,
+                    "contexts": []
                 }
-                # Extract meaning
-                meanings_elms = sense.find_all('div', class_='def-block ddef_block')
-                for meaning_elm in meanings_elms:
-                    # Extract level tag
-                    level_tag = meaning_elm.find('span', class_='epp-xref')
-                    level = level_tag.text.strip() if level_tag else None
-                    level_tag.decompose() if level_tag else None
+                for sense in senses:
+                    # Extract the title
+                    title_element = sense.find('h3', class_='dsense_h')
+                    context_title = title_element.get_text(separator=' ', strip=True) if title_element else None
 
-                    # Extract extra info like part of speech or countablity
-                    extra_element = meaning_elm.find('span', class_='def-info ddef-info')
-                    extra_info = extra_element.get_text(separator=' ', strip=True)
+                    context = {
+                        'title': context_title,
+                        "meanings": []
+                    }
+                    # Extract meaning
+                    meanings_elms = sense.find_all('div', class_=['def-block', 'ddef_block'])
+                    for meaning_elm in meanings_elms:
+                        # Extract level tag
+                        level_tag = meaning_elm.find('span', class_='epp-xref')
+                        level = level_tag.text.strip() if level_tag else None
+                        level_tag.decompose() if level_tag else None
 
-                    meaning_element = meaning_elm.find('div', class_='def ddef_d db')
-                    meaning = meaning_element.text.strip() if meaning_element else None
+                        # Extract extra info like part of speech or countablity
+                        extra_element = meaning_elm.find('span', class_='def-info ddef-info')
+                        extra_info = extra_element.get_text(separator=' ', strip=True)
 
-                    # Extract examples
-                    examples = []
-                    example_elements = meaning_elm.find_all('div', class_='examp dexamp')
-                    for example_element in example_elements:
-                        example_text = example_element.text.strip()
-                        examples.append(example_text)
+                        meaning_element = meaning_elm.find('div', class_='def ddef_d db')
+                        meaning = meaning_element.text.strip() if meaning_element else None
 
-                    context['meanings'].append(
-                        {
-                            "extra_info": extra_info,
-                            "level": level,
-                            "meaning": meaning,
-                            "examples": examples
-                        }
-                    )
+                        # Extract examples
+                        examples = []
+                        example_elements = meaning_elm.find_all('div', class_=['examp' ,'dexamp'])
+                        for example_element in example_elements:
+                            example_text = example_element.text.strip()
+                            examples.append(example_text)
 
-                word_entry['contexts'].append(context)
+                        context['meanings'].append(
+                            {
+                                "extra_info": extra_info,
+                                "level": level,
+                                "meaning": meaning,
+                                "examples": examples
+                            }
+                        )
 
-            # Initialize the dictionary entry if not already present
-            if dictionary_title not in word_data:
-                word_data[dictionary_title] = []
-            # Add the entry to the corresponding dictionary
-            word_data[dictionary_title].append(word_entry)
+                    word_entry['contexts'].append(context)
 
+                # Initialize the dictionary entry if not already present
+                if dictionary_title not in word_data:
+                    word_data[dictionary_title] = []
+                # Add the entry to the corresponding dictionary
+                word_data[dictionary_title].append(word_entry)
+            except Exception:
+                print(Exception)
+                continue
     return word_data
 
 
 # Usage example:
 if __name__ == "__main__":
-    word_info = get_word_meanings("eclectic")
+    word_info = get_word_meanings("eccentric")
     print(word_info)
