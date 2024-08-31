@@ -134,7 +134,7 @@ if __name__ == "__main__":
     html_result = generate_html_from_json(word_data, collocations, synonyms)
 
     # Output or save the HTML content
-    with open("word_meanings.html", "w") as file:
+    with open("../../word_meanings.html", "w") as file:
         file.write(html_result)
 
     print("HTML file created successfully.")

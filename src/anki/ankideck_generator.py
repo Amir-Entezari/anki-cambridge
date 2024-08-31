@@ -63,4 +63,4 @@ if __name__ == "__main__":
         # Add more words and HTML-formatted meanings here
     ]
 
-    create_anki_deck("Vocabulary Deck", words_database, "vocabulary_deck.apkg")
+    create_anki_deck("Vocabulary Deck", words_database, "../../vocabulary_deck.apkg")

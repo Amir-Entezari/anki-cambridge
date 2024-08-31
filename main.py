@@ -1,6 +1,6 @@
 import csv
-from ankideck_generator import create_anki_deck
-from create_csv import create_csv_file
+from src.anki.ankideck_generator import create_anki_deck
+from src.dataset.create_csv import create_csv_file
 # Path to the CSV file
 input_csv_path = 'Unit 20.csv'
 csv_file_path = 'output.csv'

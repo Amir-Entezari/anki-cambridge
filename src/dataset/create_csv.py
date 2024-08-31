@@ -2,9 +2,10 @@ import csv
 import random
 import time
 
-from scrape import get_word_data, get_collocations
-from html_generator import generate_html_from_json
-from synonyms import get_synonyms
+from src.scrappers.scrape import get_word_data
+from src.scrappers.collocations import get_collocations
+from src.html.html_generator import generate_html_from_json
+from src.scrappers.synonyms import get_synonyms
 
 
 # Path to your CSV file
@@ -52,6 +53,6 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
 
 
 if __name__ == "__main__":
-    input_csv_path = 'sample.csv'
-    output_csv_path = 'output.csv'
+    input_csv_path = '../../sample.csv'
+    output_csv_path = '../../output.csv'
     create_csv_file(input_csv_path, output_csv_path)
