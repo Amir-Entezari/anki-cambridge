@@ -68,7 +68,7 @@ def get_word_meanings(word):
             audio_url = audio_element.get('data-src-mp3') if audio_element else None
 
             # Find all senses (contexts) in this section
-            senses = entry_body.find_all('div', class_='pr dsense')
+            senses = entry_body.find_all('div', class_='pr dsense dsense-noh')
 
             word_entry = {
                 "word": word,
@@ -80,7 +80,7 @@ def get_word_meanings(word):
             for sense in senses:
                 # Extract the title
                 title_element = sense.find('h3', class_='dsense_h')
-                context_title = title_element.get_text(separator=' ', strip=True)
+                context_title = title_element.get_text(separator=' ', strip=True) if title_element else None
 
                 context = {
                     'title': context_title,
@@ -130,5 +130,5 @@ def get_word_meanings(word):
 
 # Usage example:
 if __name__ == "__main__":
-    word_info = get_word_meanings("bear")
+    word_info = get_word_meanings("eclectic")
     print(word_info)
