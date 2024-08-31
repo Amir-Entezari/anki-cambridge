@@ -1,4 +1,14 @@
+# Editor's files
+/.idea/
+
+# Dataset files
 *.csv
+
+# Temp code files
 playground.py
+
+# Anki files
 *.apkg
+
+# HTML files
 *.html
