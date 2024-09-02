@@ -8,8 +8,6 @@ from src.html.html_generator import generate_html_from_json
 from src.scrappers.synonyms import get_synonyms
 
 
-# Path to your CSV file
-
 def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has_synonyms=False):
     # Read the CSV file, apply the function, and write to a new CSV
     with open(input_csv_path, mode='r') as infile, open(output_csv_path, mode='w', newline='') as outfile:
@@ -17,23 +15,24 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
         writer = csv.writer(outfile)
 
         # Write the new header with only "Word" and "Meaning" columns
-        writer.writerow(['word', 'meaning',
-                         'tags'])  # Change the part_of_speech column to a more general column called tags in future
+        writer.writerow(['word', 'meaning', 'tags'])
 
         # Process each row
         for i, row in enumerate(reader):
             word = row[0]  # The word is in the first column
             if word == 'word':
                 continue
-            word_data = get_word_meanings(word)  # Get the meaning using your function
-            try:
-                collocations = get_collocations(word)
-            except Exception:
-                collocations = None
-            try:
-                synonyms = get_synonyms(word)
-            except Exception:
-                synonyms = None
+            word_data = get_word_meanings(word)
+            if has_collocations:
+                try:
+                    collocations = get_collocations(word)
+                except Exception:
+                    collocations = None
+            if has_synonyms:
+                try:
+                    synonyms = get_synonyms(word)
+                except Exception:
+                    synonyms = None
             html_meaning = generate_html_from_json(word_data, collocations, synonyms)
             tags = []
             for dict_title, dict_body in word_data.items():
