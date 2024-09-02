@@ -1,9 +1,13 @@
+import os.path
+
 import requests
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError, HTTPError
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
-from urllib.parse import quote
+from urllib.parse import quote, urljoin
+
+from config.settings import AUDIO_DIR
 
 
 def get_word_meanings(word):
@@ -65,8 +69,33 @@ def get_word_meanings(word):
                 part_of_speech = posgram.get_text(separator=' ', strip=True)
                 phonetic = entry_body.find('span', class_='ipa').text.strip() if entry_body.find('span',
                                                                                                  class_='ipa') else None
-                audio_element = entry_body.find('span', class_='audio_play_button')
-                audio_url = audio_element.get('data-src-mp3') if audio_element else None
+
+                # Download the Audio
+                audio_tag = entry_body.find('source', attrs={'type': 'audio/mpeg'})
+                audio_url = None
+                if not audio_tag:
+                    print(f"No audio found for '{word}'.")
+                else:
+                    # Get the URL of the audio file
+                    audio_url = audio_tag['src']
+
+                    # Ensure the URL is complete
+                    if not audio_url.startswith('http'):
+                        audio_url = urljoin(base_url, audio_url)
+
+                    # Fetch the audio file
+                    try:
+                        audio_response = http.get(audio_url, headers=headers)
+                        audio_response.raise_for_status()
+                        # Save the audio file
+                        audio_filename = os.path.join(AUDIO_DIR, f"{word}.mp3")
+                        with open(audio_filename, 'wb') as audio_file:
+                            audio_file.write(audio_response.content)
+
+                        print(f"Audio for '{word}' has been downloaded as '{audio_filename}'.")
+
+                    except requests.exceptions.RequestException as e:
+                        print(f"Failed to download the audio for '{word}': {e}")
 
                 # Find all senses (contexts) in this section
                 senses = entry_body.find_all('div', class_=['pr', 'dsense', 'dsense-noh'])
