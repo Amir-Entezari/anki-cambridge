@@ -32,4 +32,4 @@ with open(csv_file_path, mode='r', newline='', encoding='utf-8') as file:
         }
         word_list.append(record)
 
-create_anki_deck(deck_name, word_list, "vocabulary_deck.apkg")
+create_anki_deck(deck_name, word_list, f"{deck_name}.apkg")
