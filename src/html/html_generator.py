@@ -43,7 +43,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
                     level_tag = f"<span style='background-color:#3949ab;color:white;padding:3px;border-radius:5px;'>{level}</span>" if level else "<span style='background-color:#3949ab;color:white;padding:3px;border-radius:5px;'>None</span>"
 
                     extra_info = meaning['extra_info']
-                    extra_info_tag = f'<span style="font-weight: bold; color: #233660;">{extra_info}</span>'
+                    extra_info_tag = f'<span style="color: #4C6D91;">{extra_info}</span>'
 
                     html_content += "<hr style='border: 1px solid #fec400;' />"  # Add the yellow line
                     html_content += f"<div style='text-align: left;'>{level_tag} {extra_info_tag}</div>"
