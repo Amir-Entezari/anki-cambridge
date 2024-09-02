@@ -1,35 +1,74 @@
 import genanki
 import random  # or import uuid
+import os
+
+from config.settings import AUDIO_DIR
+
+basic_model = genanki.Model(
+    1431196525,
+    'Basic Model',
+    fields=[
+        {'name': 'Front'},
+        {'name': 'Back'},
+    ],
+    templates=[
+        {
+            'name': 'Card 1',
+            'qfmt': '{{Front}}',  # What appears on the front of the card
+            'afmt': '{{FrontSide}}<hr id="answer">{{Back}}',  # What appears on the back of the card
+        },
+    ]
+)
+
+basic_model_audio = genanki.Model(
+    974012962,
+    'Basic Model with Audio',
+    fields=[
+        {'name': 'Front'},
+        {'name': 'Back'},
+        {'name': 'Audio'},  # New field for audio
+    ],
+    templates=[
+        {
+            'name': 'Card 1',
+            'qfmt': '{{Front}}<br>{{Audio}}',  # Front of the card includes audio
+            'afmt': '{{FrontSide}}<hr id="answer">{{Back}}',  # Back of the card
+        },
+    ]
+)
+
+models = {"basic_model": basic_model,
+          "basic_model_audio": basic_model_audio}
 
 
-def create_anki_deck(deck_name, words_database, output_file):
+def create_anki_deck(deck_name, words_database, output_file, model_name="basic_model_audio"):
     """
-    Create an Anki deck from a list of words and their meanings.
+    Create an Anki deck from a list of words and their meanings, including audio.
 
     Parameters:
     - deck_name: The name of the Anki deck.
-    - words_database: A list of dictionaries, each containing a 'word' and its 'meaning' in HTML format.
+    - words_database: A list of dictionaries, each containing a 'word', 'meaning' in HTML format, and optional 'tags'.
     - output_file: The name of the output .apkg file.
     """
     # Generate unique deck_id and model_id
     deck_id = random.getrandbits(32)  # or uuid.uuid4().int & (1<<64)-1
-    model_id = random.getrandbits(32)  # or uuid.uuid4().int & (1<<64)-1
 
-    # Define the model of the Anki card (using Front and Back fields)
-    my_model = genanki.Model(
-        model_id,
-        'Basic Model',
+    model = genanki.Model(
+        974012962,
+        'Basic Model with Audio',
         fields=[
             {'name': 'Front'},
             {'name': 'Back'},
+            {'name': 'Audio'},  # New field for audio
         ],
         templates=[
             {
                 'name': 'Card 1',
-                'qfmt': '{{Front}}',  # What appears on the front of the card
-                'afmt': '{{FrontSide}}<hr id="answer">{{Back}}',  # What appears on the back of the card
+                'qfmt': '{{Front}}<br>{{Audio}}',  # Front of the card includes audio
+                'afmt': '{{FrontSide}}<hr id="answer">{{Back}}',  # Back of the card
             },
-        ])
+        ]
+    )
 
     # Create a deck
     my_deck = genanki.Deck(
@@ -37,30 +76,42 @@ def create_anki_deck(deck_name, words_database, output_file):
         deck_name)
 
     # Add notes (cards) to the deck
+    audio_files = []  # To collect all audio file paths for the package
     for entry in words_database:
+        word = entry['word']
+        audio_filename = os.path.join(AUDIO_DIR, f"{word}.mp3")  # Assuming audio files are saved as <word>.mp3
+
+        # Check if audio file exists
+        if os.path.isfile(audio_filename):
+            audio_field = f"[sound:{audio_filename}]"  # Anki format for audio
+            audio_files.append(audio_filename)  # Add audio file to package list
+        else:
+            audio_field = ''  # No audio file available
+            print(f"Audio file does not exist for {word}")
+
         note = genanki.Note(
-            model=my_model,
-            fields=[entry['word'], entry['meaning']],
-            tags=entry['tags']
-        )  # The fields are [Front, Back]
+            model=model,
+            fields=[entry['word'], entry['meaning'], audio_field],
+            tags=entry.get('tags', [])  # Default to empty list if 'tags' not in entry
+        )  # The fields are [Front, Back, Audio]
         my_deck.add_note(note)
 
-    # Save the deck to a file
-    genanki.Package(my_deck).write_to_file(output_file)
+    # Save the deck to a file including media files
+    genanki.Package(my_deck, media_files=audio_files).write_to_file(output_file)
 
     print(f"Anki deck created: {output_file}")
     print(f"Generated deck_id: {deck_id}")
-    print(f"Generated model_id: {model_id}")
+    print(f"Generated model_id: {model.model_id}")
 
 
 # Example usage:
 if __name__ == "__main__":
     words_database = [
-        {'word': 'Aberration',
-         'meaning': '<p>A departure from what is normal, usual, or expected, typically an unwelcome one.</p>'},
+        {'word': 'example',
+         'meaning': '<p>something that is typical of the group of things that it is a member of</p>'},
         {'word': 'Ebullient', 'meaning': '<p>Cheerful and full of energy.</p>'},
         {'word': 'Cacophony', 'meaning': '<p>A harsh, discordant mixture of sounds.</p>'},
         # Add more words and HTML-formatted meanings here
     ]
 
-    create_anki_deck("Vocabulary Deck", words_database, "../../vocabulary_deck.apkg")
+    create_anki_deck("Vocabulary Deck", words_database, "vocabulary_deck.apkg")
