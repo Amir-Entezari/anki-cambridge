@@ -12,7 +12,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
     """
     html_content = f""
     for dict_title, dict_body in word_data.items():
-        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">{dict_title} Dictionary</div>"""
+        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">{dict_title} Dictionary</div>"""
         for entry in dict_body:
             # Extract the word, phonetic, and part of speech from word_data
             word = entry['word']
@@ -56,7 +56,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
     # Optionally add collocations with examples
     if collocations:
         # html_content += "<h3>Collocations:</h3>"
-        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">{word} | Collocations</div>"""
+        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">{word} | Collocations</div>"""
         html_content += "<ul>"
         for collocation_item in collocations:
             collocation = collocation_item.get('collocation', '')
@@ -67,7 +67,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
 
     if synonyms:
         # html_content += "<h3>Synonyms:</h3>"
-        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">{word} | Synonyms</div>"""
+        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">{word} | Synonyms</div>"""
         html_content += "<ul>"
         for synonym_item in synonyms:
             synonym = synonym_item.get('synonym', '')
@@ -79,7 +79,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
             html_content += "</ul>"
         html_content += "</ul>"
 
-    html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">You Notes:</div>"""
+    html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">You Notes:</div>"""
     html_content += "<div>Write here...</div>"
     return html_content
 
