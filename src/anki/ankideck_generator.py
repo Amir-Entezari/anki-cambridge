@@ -1,5 +1,5 @@
 import genanki
-import random  # or import uuid
+import random
 import os
 
 from config.settings import AUDIO_DIR
@@ -51,24 +51,10 @@ def create_anki_deck(deck_name, words_database, output_file, model_name="basic_m
     - output_file: The name of the output .apkg file.
     """
     # Generate unique deck_id and model_id
-    deck_id = random.getrandbits(32)  # or uuid.uuid4().int & (1<<64)-1
+    deck_id = random.getrandbits(32)
 
-    model = genanki.Model(
-        974012962,
-        'Basic Model with Audio',
-        fields=[
-            {'name': 'Front'},
-            {'name': 'Back'},
-            {'name': 'Audio'},  # New field for audio
-        ],
-        templates=[
-            {
-                'name': 'Card 1',
-                'qfmt': '{{Front}}<br>{{Audio}}',  # Front of the card includes audio
-                'afmt': '{{FrontSide}}<hr id="answer">{{Back}}',  # Back of the card
-            },
-        ]
-    )
+    # Use the pre-defined model
+    model = models.get(model_name)
 
     # Create a deck
     my_deck = genanki.Deck(
@@ -79,12 +65,13 @@ def create_anki_deck(deck_name, words_database, output_file, model_name="basic_m
     audio_files = []  # To collect all audio file paths for the package
     for entry in words_database:
         word = entry['word']
-        audio_filename = os.path.join(AUDIO_DIR, f"{word}.mp3")  # Assuming audio files are saved as <word>.mp3
+        audio_filename = f"{word}.mp3"  # Only use the filename, not the full path
+        audio_file_path = os.path.join(AUDIO_DIR, audio_filename)  # Full path to check existence
 
         # Check if audio file exists
-        if os.path.isfile(audio_filename):
+        if os.path.isfile(audio_file_path):
             audio_field = f"[sound:{audio_filename}]"  # Anki format for audio
-            audio_files.append(audio_filename)  # Add audio file to package list
+            audio_files.append(audio_file_path)  # Add full path to the package list
         else:
             audio_field = ''  # No audio file available
             print(f"Audio file does not exist for {word}")
