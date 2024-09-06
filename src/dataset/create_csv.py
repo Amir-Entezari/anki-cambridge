@@ -46,6 +46,8 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
                         if 'adverb' in entry['part_of_speech']:
                             tags.append('adverb')
                         if 'verb' in entry['part_of_speech']:
+                            if 'phrasal' in entry['part_of_speech']:
+                                tags.append('phrasal verb')
                             tags.append('verb')
                     except Exception:
                         continue
