@@ -23,6 +23,8 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
             if word == 'word':
                 continue
             word_data = get_word_meanings(word)
+            collocations = None
+            synonyms = None
             if has_collocations:
                 try:
                     collocations = get_collocations(word)
@@ -35,6 +37,7 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
                     synonyms = None
             html_meaning = generate_html_from_json(word_data, collocations, synonyms)
             tags = []
+            # TODO: Add level of word to tags
             for dict_title, dict_body in word_data.items():
                 for entry in dict_body:
                     try:
@@ -56,4 +59,4 @@ def create_csv_file(input_csv_path, output_csv_path, has_collocations=False, has
 if __name__ == "__main__":
     input_csv_path = 'sample.csv'
     output_csv_path = 'output.csv'
-    create_csv_file(input_csv_path, output_csv_path)
+    create_csv_file(input_csv_path, output_csv_path, has_collocations=True, has_synonyms=True)
