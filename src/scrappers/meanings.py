@@ -59,6 +59,7 @@ def get_word_meanings(word):
         if "american" in dictionary_title.lower():
             continue
 
+        # TODO: handle scrapper for phrasal verbs
         entry_bodies = section.find_all('div', class_='pr entry-body__el')
         for entry_body in entry_bodies:
             try:
