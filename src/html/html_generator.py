@@ -12,7 +12,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
     """
     html_content = f""
     for dict_title, dict_body in word_data.items():
-        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">{dict_title} Dictionary</div>"""
+        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">{dict_title} Dictionary</div>"""
         for entry in dict_body:
             # Extract the word, phonetic, and part of speech from word_data
             word = entry['word']
@@ -43,7 +43,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
                     level_tag = f"<span style='background-color:#3949ab;color:white;padding:3px;border-radius:5px;'>{level}</span>" if level else "<span style='background-color:#3949ab;color:white;padding:3px;border-radius:5px;'>None</span>"
 
                     extra_info = meaning['extra_info']
-                    extra_info_tag = f'<span style="font-weight: bold; color: #233660;">{extra_info}</span>'
+                    extra_info_tag = f'<span style="color: #4C6D91;">{extra_info}</span>'
 
                     html_content += "<hr style='border: 1px solid #fec400;' />"  # Add the yellow line
                     html_content += f"<div style='text-align: left;'>{level_tag} {extra_info_tag}</div>"
@@ -56,7 +56,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
     # Optionally add collocations with examples
     if collocations:
         # html_content += "<h3>Collocations:</h3>"
-        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">{word} | Collocations</div>"""
+        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">{word} | Collocations</div>"""
         html_content += "<ul>"
         for collocation_item in collocations:
             collocation = collocation_item.get('collocation', '')
@@ -67,7 +67,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
 
     if synonyms:
         # html_content += "<h3>Synonyms:</h3>"
-        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">{word} | Synonyms</div>"""
+        html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">{word} | Synonyms</div>"""
         html_content += "<ul>"
         for synonym_item in synonyms:
             synonym = synonym_item.get('synonym', '')
@@ -79,7 +79,7 @@ def generate_html_from_json(word_data: dict, collocations=None, synonyms=None):
             html_content += "</ul>"
         html_content += "</ul>"
 
-    html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold;">You Notes:</div>"""
+    html_content += f"""<div style="background-color: #FFCC00; padding: 10px; font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; color: #1d2a57">You Notes:</div>"""
     html_content += "<div>Write here...</div>"
     return html_content
 

@@ -7,8 +7,15 @@ __pycache__
 # Dataset files
 *.csv
 
+# Audio files
+*.mp3
+
 # Temp code files
 playground.py
+playground
+/playground
+/playground/
+playground/
 
 # Anki files
 *.apkg
